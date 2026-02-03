@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",       // Prettier for formatting
+    "dbaeumer.vscode-eslint",       // ESLint integration
+    "eamodio.gitlens",              // Git lens
+    "formulahendry.auto-close-tag", // Auto close HTML/Vue tags
+    "formulahendry.auto-rename-tag",// Auto rename tags
+    "streetsidesoftware.code-spell-checker", // Spell checker
+    "bradlc.vscode-tailwindcss",    // TailwindCSS Intellisense
+    "octref.vetur",                  // Vue tooling
+    "Vue.volar",                     // Recommended for Vue 3 / Nuxt 4
+    "usernamehw.errorlens"           // Show errors inline
+  ]
+}
