@@ -1,4 +1,3 @@
-// stores/auth.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { CustomTokenObtainPairRequest, UserDetail, ApiResponse } from '~/types/api'
@@ -6,54 +5,48 @@ import type { CustomTokenObtainPairRequest, UserDetail, ApiResponse } from '~/ty
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserDetail | null>(null)
   const loading = ref(false)
+  const authenticated = useCookie<boolean | null>('is_authenticated')
 
-  // Access $api correctly
-  const { $api } = useNuxtApp()
+  const api = useApi()
 
   const login = async (credentials: CustomTokenObtainPairRequest) => {
     try {
-      console.log('cre ----------  ', credentials)
-
       loading.value = true
-      // Send credentials in POST body
-      await $api('/api/accounts/login/', {
+
+      const response = await api<ApiResponse<{ access: string }>>('/api/accounts/login/', {
         method: 'POST',
         body: credentials
       })
 
-      // Fetch profile after login
-      await fetchProfile()
-      return true
+      if (response?.status && response.data) {
+        authenticated.value = true
+        await fetchProfile()
+      }
+      return response;
     } catch (error) {
       console.error('Login failed:', error)
-      return false
+      return null
     } finally {
       loading.value = false
     }
   }
 
-  const logout = async () => {
-    try {
-      await $api('/api/accounts/logout/', { method: 'POST' })
-    } catch (error) {
-      console.error('Logout failed:', error)
-    } finally {
-      user.value = null
-      const router = useRouter()
-      router.push('/auth/login')
-    }
-  }
-
   const fetchProfile = async () => {
     try {
-      const response = await $api<ApiResponse<UserDetail>>('/api/accounts/profile/')
+      const response = await api<ApiResponse<UserDetail>>('/api/accounts/profile/')
       if (response?.status && response.data) {
         user.value = response.data
       }
     } catch (error) {
-      console.error('Fetch profile failed:', error)
       user.value = null
+      authenticated.value = null
     }
+  }
+
+  const logout = async () => {
+    authenticated.value = null
+    user.value = null
+    await navigateTo('/auth/login')
   }
 
   return { user, loading, login, logout, fetchProfile }

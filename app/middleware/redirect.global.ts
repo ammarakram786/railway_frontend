@@ -1,15 +1,24 @@
-import { useAuthStore } from '~/stores/auth'
-import { storeToRefs } from 'pinia'
+export default defineNuxtRouteMiddleware((to) => {
+  const authenticated = useCookie<boolean | null>('is_authenticated')
 
-export default defineNuxtRouteMiddleware((to, from) => {
-  const authStore = useAuthStore()
-  const { user } = storeToRefs(authStore)
-  console.log(from)
-  if (to.path === '/') {
-    if (user.value) {
-      return navigateTo('/users')
-    } else {
-      return navigateTo('/auth/login')
-    }
+  const publicRoutes = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/forgot-password'
+  ]
+
+  // If logged in and trying to access root or public auth routes, redirect to /users
+  if (authenticated.value && (to.path === '/' || publicRoutes.includes(to.path))) {
+    return navigateTo('/users')
+  }
+
+  // Allow public routes for non-authenticated users
+  if (publicRoutes.includes(to.path)) {
+    return
+  }
+
+  // Not authenticated → login
+  if (!authenticated.value) {
+    return navigateTo('/auth/login')
   }
 })

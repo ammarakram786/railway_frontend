@@ -15,15 +15,19 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'
+      apiBase: ''
     }
   },
 
-  routeRules: {
-    '/': { prerender: true }
-  },
-
   compatibilityDate: '2025-01-15',
+
+  icon: {
+    serverBundle: 'remote',
+    clientBundle: {
+      scan: true,
+      includeCustomCollections: true
+    }
+  },
 
   eslint: {
     config: {
@@ -32,5 +36,15 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
-  }
+  },
+  nitro: {
+  devProxy: {
+    '/api': {
+      target: 'http://10.0.121.52:8000/api',
+      changeOrigin: true,
+      prependPath: true
+      }
+    }
+  },
+
 })

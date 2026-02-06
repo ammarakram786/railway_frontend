@@ -2,10 +2,11 @@
 </script>
 
 <template>
-  <div>
-    <h1>HIIIIIII </h1>
-    <slot />
-  </div>
+  <ClientOnly>
+    <div>
+      <slot />
+    </div>
+  </ClientOnly>
 </template>
 
 <style scoped>

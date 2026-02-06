@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
-import type { AuthFormField } from '@nuxt/ui'
+import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
 import type { CustomTokenObtainPairRequest } from '~/types/api'
 
 definePageMeta({
@@ -12,7 +12,6 @@ definePageMeta({
 const authStore = useAuthStore()
 const { loading } = storeToRefs(authStore)
 const toast = useToast()
-const router = useRouter()
 
 const fields = ref<AuthFormField[]>([
   { name: 'email', type: 'text', label: 'Email', placeholder: 'you@example.com' },
@@ -20,22 +19,24 @@ const fields = ref<AuthFormField[]>([
 ])
 
 // handleSubmit gets called with the form state
-const handleSubmit = async (state: Record<string, string>) => {
+const handleSubmit = async (event: FormSubmitEvent<any>) => {
   const credentials: CustomTokenObtainPairRequest = {
-    username: state.data.email,
-    password: state.data.password
+    username: event.data.email,
+    password: event.data.password
   }
   const success = await authStore.login(credentials)
+  console.log(success);
 
-  if (success) {
+
+  if (success && 'status' in success && success.status) {
     toast.add({
       title: 'Welcome back',
       description: 'You have successfully signed in.'
     })
-    await router.push('/')
+    await navigateTo('/users')
   } else {
     toast.add({
-      color: 'red',
+      color: 'error',
       title: 'Login failed',
       description: 'Check your credentials and try again.'
     })
@@ -44,16 +45,10 @@ const handleSubmit = async (state: Record<string, string>) => {
 </script>
 
 <template>
-  <div class="min-h-[70vh] flex items-center justify-center px-4">
-    <UAuthForm
-      title="Welcome back"
-      description="Enter your credentials to access your account."
-      icon="i-lucide-user"
-      :fields="fields"
-      :loading="loading"
-      class="w-full max-w-md"
-      @submit="handleSubmit"
-    >
+  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+    <UAuthForm title="Welcome To Railway Tag & Monitoring App"
+      description="Enter your credentials to access your account." icon="i-lucide-train-track" class="sm:max-w-md"
+      :fields="fields" :loading="loading" @submit="handleSubmit">
       <template #footer />
     </UAuthForm>
   </div>
