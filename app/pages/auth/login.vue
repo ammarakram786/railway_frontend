@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
 import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
-import type { CustomTokenObtainPairRequest } from '~/types/api'
+import type { ApiResponse, CustomTokenObtainPairRequest } from '~/types/api'
 
 definePageMeta({
   layout: 'auth'
@@ -24,11 +24,11 @@ const handleSubmit = async (event: FormSubmitEvent<any>) => {
     username: event.data.email,
     password: event.data.password
   }
-  const success = await authStore.login(credentials)
-  console.log(success);
+  const res: ApiResponse<any> = await authStore.login(credentials)
 
 
-  if (success && 'status' in success && success.status) {
+
+  if (res.status) {
     toast.add({
       title: 'Welcome back',
       description: 'You have successfully signed in.'
@@ -38,7 +38,7 @@ const handleSubmit = async (event: FormSubmitEvent<any>) => {
     toast.add({
       color: 'error',
       title: 'Login failed',
-      description: 'Check your credentials and try again.'
+      description: res.detail || 'Login Failed'
     })
   }
 }

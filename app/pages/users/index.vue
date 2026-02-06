@@ -8,7 +8,7 @@ const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 
-const { users, totalUsers, loading, fetchUsers, deactivateUser, activateUser } = useUsers()
+const { users, totalUsers, loading, fetchUsers, deactivateUser, activateUser, resetPassword, deleteUser } = useUsers()
 const toast = useToast()
 
 const toggleStatus = async (user: any) => {
@@ -20,6 +20,33 @@ const toggleStatus = async (user: any) => {
     toast.add({
       title: 'Success',
       description: `User ${user.username} has been ${user.is_active ? 'deactivated' : 'activated'}.`,
+      color: 'success'
+    })
+    loadUsers()
+  }
+}
+const changePassword = async (user: any) => {
+  const success = await resetPassword(user.id)
+
+  if (success) {
+    toast.add({
+      title: 'Success',
+      description: `Password has been reset.`,
+      color: 'success'
+    })
+    loadUsers()
+  }
+}
+
+const userDelete = async (user: any) => {
+  const success = await deleteUser(user.id)
+  console.log(success);
+
+
+  if (success?.status) {
+    toast.add({
+      title: 'Success',
+      description: `User deleted Successfully`,
       color: 'success'
     })
     loadUsers()
@@ -65,7 +92,7 @@ const columns: TableColumn<User>[] = [
         }, {
           label: 'Reset Password',
           icon: 'i-lucide-key-round',
-          onSelect: () => toast.add({ title: 'Coming Soon', description: 'Password reset will be available soon.' })
+          onSelect: () => changePassword(user)
         },
         { type: 'separator' },
         {
@@ -79,7 +106,7 @@ const columns: TableColumn<User>[] = [
           label: 'Delete User',
           icon: 'i-lucide-trash-2',
           color: 'error' as const,
-          onSelect: () => toast.add({ title: 'Danger!', description: 'Delete functionality coming soon.' })
+          onSelect: () => userDelete(user)
         }
       ]
       return h(UDropdownMenu, {

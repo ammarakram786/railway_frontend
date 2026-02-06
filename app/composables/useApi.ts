@@ -1,4 +1,13 @@
 // composables/useApi.ts
+import type { FetchError } from 'ofetch'
+type ApiError = {
+  status: boolean
+  code: number
+  message: string
+  data: any
+  detail?: string
+}
+
 export function useApi() {
   const config = useRuntimeConfig()
 
@@ -11,7 +20,7 @@ export function useApi() {
       headers?: HeadersInit
     } = {},
     retry = true
-  ): Promise<T> => {
+  ): Promise<T | ApiError> => {
     try {
       return await $fetch<T>(url, {
         baseURL: config.public.apiBase,
@@ -22,8 +31,16 @@ export function useApi() {
           ...(options.headers || {}),
         },
       })
-    } catch (error: any) {
-      if (error?.status === 401) {
+    } catch (error) {
+      const isLoginRequest = url.includes('/login')
+      console.log('error', isLoginRequest);
+      const err = error as FetchError<ApiError>
+      if (isLoginRequest) {
+        retry = false
+        return err.data as ApiError
+      }
+
+      if (err?.data?.code === 401) {
         if (retry) {
           try {
             // 🔁 Refresh session via cookie
@@ -48,7 +65,9 @@ export function useApi() {
         return await navigateTo('/auth/login') as any
       }
 
-      throw error
+
+
+      return err.data as ApiError
     }
   }
 

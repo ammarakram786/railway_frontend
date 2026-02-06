@@ -70,7 +70,7 @@ export const useUsers = () => {
   const deleteUser = async (id: number) => {
     try {
       loading.value = true
-      return await api<void>(`/api/accounts/users/${id}/`, {
+      return await api<ApiResponse>(`/api/accounts/users/${id}/`, {
         method: 'DELETE'
       })
     } catch (error) {
@@ -106,12 +106,12 @@ export const useUsers = () => {
     }
   }
 
-  const setPassword = async (id: number, data: { password?: string }) => {
+  const resetPassword = async (id: number,) => {
     try {
       loading.value = true
-      return await api<ApiResponse<User>>(`/api/accounts/users/${id}/set_password/`, {
+      return await api<ApiResponse<User>>(`/api/accounts/users/${id}/reset_password/`, {
         method: 'POST',
-        body: data
+        body: {}
       })
     } catch (error) {
       console.error('Failed to set password:', error)
@@ -131,6 +131,6 @@ export const useUsers = () => {
     deleteUser,
     activateUser,
     deactivateUser,
-    setPassword
+    resetPassword
   }
 }

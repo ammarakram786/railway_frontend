@@ -18,14 +18,16 @@ export const useAuthStore = defineStore('auth', () => {
         body: credentials
       })
 
-      if (response?.status && response.data) {
+      console.log('login ---RES----',response);
+
+
+      if (response.status) {
         authenticated.value = true
         await fetchProfile()
       }
       return response;
     } catch (error) {
       console.error('Login failed:', error)
-      return null
     } finally {
       loading.value = false
     }

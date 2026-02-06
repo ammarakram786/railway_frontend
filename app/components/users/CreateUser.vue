@@ -12,7 +12,7 @@ const form = reactive({
     first_name: '',
     last_name: '',
     password: 'DefaultPassword123!',
-    role_ids: [] as number[]
+    role: 0
 })
 
 onMounted(() => {
@@ -34,7 +34,7 @@ const handleCreateUser = async () => {
             email: '',
             first_name: '',
             last_name: '',
-            role_ids: []
+            role: 0
         })
         emit('success')
     } else {
@@ -61,8 +61,7 @@ const handleCreateUser = async () => {
                     <UFormField label="Email" name="email" required>
                         <UInput v-model="form.email" type="email" placeholder="john@example.com" class="w-full" />
                     </UFormField>
-                    <!-- </div>
-                <div class="grid grid-cols-2 gap-4"> -->
+
                     <UFormField label="First Name" name="first_name" required>
                         <UInput v-model="form.first_name" placeholder="John" class="w-full" />
                     </UFormField>
@@ -72,10 +71,8 @@ const handleCreateUser = async () => {
                     </UFormField>
                 </div>
 
-                <UFormField label="Assign Roles" name="role_ids">
-                    <SharedPickList v-model="form.role_ids" :items="roles" source-header="Available Roles"
-                        target-header="Assigned Roles" source-filter-placeholder="Search available roles..."
-                        target-filter-placeholder="Search assigned roles..." />
+                <UFormField label="Role" name="role">
+                    <USelect v-model="form.role" value-key="id" :items="roles" class="w-48" label-key="name" />
                 </UFormField>
 
                 <div class="flex justify-end gap-3 mt-6">
