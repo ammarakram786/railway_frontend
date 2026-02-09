@@ -1,55 +1,61 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { CustomTokenObtainPairRequest, UserDetail, ApiResponse } from '~/types/api'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserDetail | null>(null)
-  const loading = ref(false)
+  const permissions = computed(() => user.value?.permissions || [])
   const authenticated = useCookie<boolean | null>('is_authenticated')
 
-  const api = useApi()
+  const {
+    login: authLogin,
+    fetchProfile: authFetchProfile,
+    logout: authLogout,
+    loading
+  } = useAuth()
+
 
   const login = async (credentials: CustomTokenObtainPairRequest) => {
-    try {
-      loading.value = true
+    const response = await authLogin(credentials)
 
-      const response = await api<ApiResponse<{ access: string }>>('/api/accounts/login/', {
-        method: 'POST',
-        body: credentials
-      })
-
-      console.log('login ---RES----',response);
-
-
-      if (response.status) {
-        authenticated.value = true
-        await fetchProfile()
-      }
-      return response;
-    } catch (error) {
-      console.error('Login failed:', error)
-    } finally {
-      loading.value = false
+    if (response?.status) {
+      authenticated.value = true
+      permissions.value = response.data.permissions
+      await Promise.all([
+        fetchProfile()
+      ])
     }
+    return response
   }
 
   const fetchProfile = async () => {
-    try {
-      const response = await api<ApiResponse<UserDetail>>('/api/accounts/profile/')
-      if (response?.status && response.data) {
-        user.value = response.data
-      }
-    } catch (error) {
+    const response = await authFetchProfile()
+    if (response?.status && response.data) {
+      user.value = response.data
+    } else {
       user.value = null
       authenticated.value = null
     }
   }
 
   const logout = async () => {
+    await authLogout()
     authenticated.value = null
     user.value = null
     await navigateTo('/auth/login')
   }
 
-  return { user, loading, login, logout, fetchProfile }
+  const hasPermission = (permission: string) => {
+    return permissions.value.includes(permission)
+  }
+
+  return {
+    user,
+    permissions,
+    loading,
+    login,
+    logout,
+    fetchProfile,
+    hasPermission
+  }
 })

@@ -35,6 +35,7 @@ export interface User {
   last_name: string
   is_active: boolean
   role: Role
+  permissions: string[]
 }
 
 export interface UserDetail extends User {

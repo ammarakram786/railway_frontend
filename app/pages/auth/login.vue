@@ -24,11 +24,11 @@ const handleSubmit = async (event: FormSubmitEvent<any>) => {
     username: event.data.email,
     password: event.data.password
   }
-  const res: ApiResponse<any> = await authStore.login(credentials)
+  const res = await authStore.login(credentials)
 
 
 
-  if (res.status) {
+  if (res?.status) {
     toast.add({
       title: 'Welcome back',
       description: 'You have successfully signed in.'
@@ -38,7 +38,7 @@ const handleSubmit = async (event: FormSubmitEvent<any>) => {
     toast.add({
       color: 'error',
       title: 'Login failed',
-      description: res.detail || 'Login Failed'
+      description: res?.detail || 'Login Failed'
     })
   }
 }
